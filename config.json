@@ -1,0 +1,24 @@
+{
+  "schedule_period": {
+    "start_date": "2025-06-13",
+    "end_date": "2025-10-03"
+  },
+  "holiday_list_path": "holidays.csv",
+  "daily_schedules": [
+    {
+      "time": "08:20:00",
+      "task_type": "play_mp3",
+      "task_path": "ikuju.mp3"
+    },
+    {
+      "time": "12:20:00",
+      "task_type": "play_mp3",
+      "task_path": "ikuju.mp3"
+    },
+    {
+      "time": "17:15:00",
+      "task_type": "play_mp3",
+      "task_path": "ikuju.mp3"
+    }
+  ]
+}
