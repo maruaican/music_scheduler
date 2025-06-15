@@ -41,11 +41,7 @@ def load_config(config_file_path: str):
 
 # --- このファイル単体で実行した際の動作確認 ---
 if __name__ == "__main__":
-    base_path = (
-        os.path.dirname(sys.executable)
-        if getattr(sys, "frozen", False)
-        else os.path.dirname(__file__)
-    )
+    base_path = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else os.path.dirname(__file__)
     config_path = os.path.join(base_path, "config.json")
 
     dummy_config_data = {

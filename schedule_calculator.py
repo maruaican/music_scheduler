@@ -47,17 +47,11 @@ def calculate_schedule(config: dict, base_path: str) -> list:
     schedule_list = []
 
     try:
-        start_date = datetime.strptime(
-            config["schedule_period"]["start_date"], "%Y-%m-%d"
-        ).date()
-        end_date = datetime.strptime(
-            config["schedule_period"]["end_date"], "%Y-%m-%d"
-        ).date()
+        start_date = datetime.strptime(config["schedule_period"]["start_date"], "%Y-%m-%d").date()
+        end_date = datetime.strptime(config["schedule_period"]["end_date"], "%Y-%m-%d").date()
         holiday_path = os.path.join(base_path, config["holiday_list_path"])
     except (KeyError, ValueError) as e:
-        print(
-            f"エラー: 設定ファイルの期間指定('start_date', 'end_date')が不正です。: {e}"
-        )
+        print(f"エラー: 設定ファイルの期間指定('start_date', 'end_date')が不正です。: {e}")
         return []
 
     holidays = read_holidays(holiday_path)
@@ -81,19 +75,13 @@ def calculate_schedule(config: dict, base_path: str) -> list:
                         }
                     )
                 except (KeyError, ValueError) as e:
-                    print(
-                        f"警告: daily_schedules内のタスク定義が不正なためスキップします。"
-                        f": {daily_task} - {e}"
-                    )
+                    print(f"警告: daily_schedules内のタスク定義が不正なためスキップします。: {daily_task} - {e}")
 
         current_date += timedelta(days=1)
 
     schedule_list.sort(key=lambda x: x["datetime"])
 
-    print(
-        f"情報: {start_date} から {end_date} までの期間で、"
-        f"{len(schedule_list)}件のタスクをスケジュールしました。"
-    )
+    print(f"情報: {start_date} から {end_date} までの期間で、{len(schedule_list)}件のタスクをスケジュールしました。")
     return schedule_list
 
 
@@ -111,15 +99,11 @@ if __name__ == "__main__":
     dummy_config = {
         "schedule_period": {"start_date": "2025-06-09", "end_date": "2025-06-13"},
         "holiday_list_path": "holidays_test.csv",
-        "daily_schedules": [
-            {"time": "09:00:00", "task_type": "test", "task_path": "test.exe"}
-        ],
+        "daily_schedules": [{"time": "09:00:00", "task_type": "test", "task_path": "test.exe"}],
     }
     with open(config_path, "w", encoding="utf-8") as f:
         json.dump(dummy_config, f, indent=2)
-    with open(
-        os.path.join(base_path, "holidays_test.csv"), "w", encoding="shift_jis"
-    ) as f:
+    with open(os.path.join(base_path, "holidays_test.csv"), "w", encoding="shift_jis") as f:
         f.write("2025-06-10")
 
     config_data = _load_config_for_test(config_path)
@@ -128,8 +112,5 @@ if __name__ == "__main__":
 
         print("\n--- 生成されたスケジュール（最初の5件） ---")
         for task in full_schedule[:5]:
-            print(
-                f"{task['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - "
-                f"{task['task_type']}: {task['task_path']}"
-            )
+            print(f"{task['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - {task['task_type']}: {task['task_path']}")
         print("-----------------------------------------")
