@@ -69,8 +69,12 @@ def scheduler_loop(config, base_path):
             current_time = now.time()
 
             # 毎朝8:00に今後のスケジュールを表示
-            if current_time >= datetime.strptime("08:00:00", "%H:%M:%S").time() and (
-                last_schedule_display_date is None or current_date > last_schedule_display_date
+            if (
+                current_time >= datetime.strptime("08:00:00", "%H:%M:%S").time()
+                and (
+                    last_schedule_display_date is None
+                    or current_date > last_schedule_display_date
+                )
             ):
                 logging.info("========================================")
                 logging.info("今後のスケジュールを表示します。")
@@ -78,24 +82,34 @@ def scheduler_loop(config, base_path):
 
                 # 今後1年間のスケジュールを計算
                 temp_config_for_future = copy.deepcopy(config)
-                temp_config_for_future["schedule_period"]["start_date"] = current_date.strftime("%Y-%m-%d")
+                temp_config_for_future["schedule_period"]["start_date"] = \
+                    current_date.strftime("%Y-%m-%d")
                 original_end_date_str = config["schedule_period"]["end_date"]
-                original_end_date = datetime.strptime(original_end_date_str, "%Y-%m-%d").date()
+                original_end_date = datetime.strptime(
+                    original_end_date_str, "%Y-%m-%d"
+                ).date()
                 one_year_later_date = current_date + timedelta(days=365)
                 display_end_date = min(original_end_date, one_year_later_date)
-                temp_config_for_future["schedule_period"]["end_date"] = display_end_date.strftime("%Y-%m-%d")
+                temp_config_for_future["schedule_period"]["end_date"] = \
+                    display_end_date.strftime("%Y-%m-%d")
 
-                future_schedule = calculate_schedule(temp_config_for_future, base_path)
+                future_schedule = calculate_schedule(
+                    temp_config_for_future, base_path
+                )
                 future_schedule.sort(key=lambda x: x["datetime"])
 
                 # 現在時刻より後のタスクのみを抽出し、最大30件表示
-                upcoming_tasks = [t for t in future_schedule if t["datetime"] > now][:30]
+                upcoming_tasks = [
+                    t for t in future_schedule if t["datetime"] > now
+                ][:30]
 
                 if upcoming_tasks:
                     logging.info("--- 今後のタスク (最大30件を表示) ---")
                     for i, task in enumerate(upcoming_tasks):
                         logging.info(
-                            f"  {i + 1:02d}. {task['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - {task['task_type']}: {task['task_path']}"
+                            f"  {i + 1:02d}. "
+                            f"{task['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - "
+                            f"{task['task_type']}: {task['task_path']}"
                         )
                     logging.info("-----------------------------------------")
                 else:
@@ -107,28 +121,39 @@ def scheduler_loop(config, base_path):
                 logging.info(f"新しい日 ({current_date}) のスケジュールを計算します。")
 
                 temp_config = copy.deepcopy(config)
-                temp_config["schedule_period"]["start_date"] = current_date.strftime("%Y-%m-%d")
-                temp_config["schedule_period"]["end_date"] = current_date.strftime("%Y-%m-%d")
+                temp_config["schedule_period"]["start_date"] = \
+                    current_date.strftime("%Y-%m-%d")
+                temp_config["schedule_period"]["end_date"] = \
+                    current_date.strftime("%Y-%m-%d")
 
                 tasks_for_today = calculate_schedule(temp_config, base_path)
                 tasks_for_today.sort(key=lambda x: x["datetime"])
 
-                tasks_for_today = [t for t in tasks_for_today if t["datetime"] > now]
+                tasks_for_today = [
+                    t for t in tasks_for_today if t["datetime"] > now
+                ]
 
                 # ログ出力の前に、未実行タスクの件数を更新
                 with status_lock:
-                    APP_STATUS["full_schedule_for_ui"] = copy.deepcopy(tasks_for_today)
+                    APP_STATUS["full_schedule_for_ui"] = \
+                        copy.deepcopy(tasks_for_today)
                     APP_STATUS["status"] = "監視中"
                     APP_STATUS["pending_task_count"] = len(tasks_for_today)
                     APP_STATUS["next_task_time"] = (
-                        tasks_for_today[0]["datetime"].strftime("%Y-%m-%d %H:%M:%S (%a)") if tasks_for_today else "なし"
+                        tasks_for_today[0]["datetime"].strftime(
+                            "%Y-%m-%d %H:%M:%S (%a)")
+                        if tasks_for_today else "なし"
                     )
 
-                logging.info(f"本日 ({current_date}) の未実行タスク: {len(tasks_for_today)}件。")
+                logging.info(
+                    f"本日 ({current_date}) の未実行タスク: {len(tasks_for_today)}件。"
+                )
                 if tasks_for_today:
                     next_task_info = tasks_for_today[0]
                     logging.info(
-                        f"  次のタスク: {next_task_info['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - {next_task_info['task_type']}: {next_task_info['task_path']}"
+                        f"次回のスケジュール: "
+                        f"{next_task_info['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - "
+                        f"{next_task_info['task_type']}: {next_task_info['task_path']}"
                     )
                 # tasks_for_todayが空の場合、「タスクはありません」というログは件数0のログでカバーされるため、ここでは追加しない。
                 last_checked_date = current_date
@@ -140,7 +165,15 @@ def scheduler_loop(config, base_path):
                 logging.info("本日のスケジュールは、終了しました。")
                 logging.info("明日のスケジュールまでこのまま待機します。")
                 logging.info("========================================")
-                time.sleep(60)  # 1分間待機してループを継続
+                # 次の日の0時0分0秒まで待機
+                tomorrow = current_date + timedelta(days=1)
+                wait_until = datetime.combine(tomorrow, datetime.min.time())
+                time_to_wait = (wait_until - now).total_seconds()
+                if time_to_wait > 0:
+                    logging.info(
+                        f"次の日 ({tomorrow.strftime('%Y-%m-%d')}) まで待機します。"
+                    )
+                    time.sleep(time_to_wait)
                 continue
 
             next_task = tasks_for_today[0]
@@ -152,7 +185,10 @@ def scheduler_loop(config, base_path):
             # --- 実行時刻に到達 ---
             with status_lock:
                 APP_STATUS["status"] = f"実行中: {next_task['task_type']}"
-            logging.info(f"実行時刻です。タスクを実行 -> [{next_task['task_type']}] {next_task['task_path']}")
+            logging.info(
+                f"実行時刻です。タスクを実行 -> "
+                f"[{next_task['task_type']}] {next_task['task_path']}"
+            )
 
             executed_task = tasks_for_today.pop(0)  # 実行したタスクをリストから削除
 
@@ -169,15 +205,18 @@ def scheduler_loop(config, base_path):
             # --- 実行後処理 ---
             with status_lock:
                 APP_STATUS["pending_task_count"] = len(tasks_for_today)
-                APP_STATUS["next_task_time"] = (
-                    tasks_for_today[0]["datetime"].strftime("%Y-%m-%d %H:%M:%S (%a)") if tasks_for_today else "なし"
-                )
+                APP_STATUS["next_task_time"] = \
+                    (tasks_for_today[0]["datetime"].strftime(
+                        "%Y-%m-%d %H:%M:%S (%a)")
+                     if tasks_for_today else "なし")
                 APP_STATUS["status"] = "監視中"
 
             if tasks_for_today:
                 next_upcoming_task = tasks_for_today[0]
                 logging.info(
-                    f"次回のスケジュール: {next_upcoming_task['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - {next_upcoming_task['task_type']}: {next_upcoming_task['task_path']}"
+                    f"次回のスケジュール: "
+                    f"{next_upcoming_task['datetime'].strftime('%Y-%m-%d %H:%M:%S (%a)')} - "
+                    f"{next_upcoming_task['task_type']}: {next_upcoming_task['task_path']}"
                 )
             else:
                 logging.info("本日の残りのスケジュールはありません。")
@@ -191,7 +230,10 @@ def scheduler_loop(config, base_path):
 
 # --- メイン実行ブロック ---
 if __name__ == "__main__":
-    base_path = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else os.path.dirname(__file__)
+    is_frozen = getattr(sys, "frozen", False)
+    current_file_dir = os.path.dirname(__file__)
+    executable_dir = os.path.dirname(sys.executable)
+    base_path = executable_dir if is_frozen else current_file_dir
     setup_logging(base_path)
     logging.info("========================================")
     logging.info("音楽再生スケジューラを開始します。")
@@ -208,11 +250,15 @@ if __name__ == "__main__":
         logging.info("  毎日のスケジュール:")
         for schedule in config["daily_schedules"]:
             logging.info(
-                f"    - 時刻: {schedule['time']}, タスクタイプ: {schedule['task_type']}, タスクパス: {schedule['task_path']}"
+                f"    - 時刻: {schedule['time']}, "
+                f"タスクタイプ: {schedule['task_type']}, "
+                f"タスクパス: {schedule['task_path']}"
             )
 
     # configのstart_dateが過去の場合の処理
-    config_start_date = datetime.strptime(config["schedule_period"]["start_date"], "%Y-%m-%d").date()
+    config_start_date = datetime.strptime(
+        config["schedule_period"]["start_date"], "%Y-%m-%d"
+    ).date()
     today = date.today()
 
     if config_start_date < today:

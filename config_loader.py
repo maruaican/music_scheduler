@@ -41,11 +41,17 @@ def load_config(config_file_path: str):
 
 # --- このファイル単体で実行した際の動作確認 ---
 if __name__ == "__main__":
-    base_path = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else os.path.dirname(__file__)
+    is_frozen = getattr(sys, "frozen", False)
+    current_file_dir = os.path.dirname(__file__)
+    executable_dir = os.path.dirname(sys.executable)
+    base_path = executable_dir if is_frozen else current_file_dir
     config_path = os.path.join(base_path, "config.json")
 
     dummy_config_data = {
-        "schedule_period": {"start_date": "2025-06-16", "end_date": "2025-09-15"},
+        "schedule_period": {
+            "start_date": "2025-06-16",
+            "end_date": "2025-09-15"
+        },
         "holiday_list_path": "holidays.csv",
         "daily_schedules": [
             {
