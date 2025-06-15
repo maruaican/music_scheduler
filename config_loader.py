@@ -18,7 +18,7 @@ def load_config(config_file_path: str):
     print(f"情報: 設定ファイル '{config_file_path}' を読み込んでいます。")
 
     if not os.path.exists(config_file_path):
-        print(f"エラー: 設定ファイルが見つかりません。")
+        print("エラー: 設定ファイルが見つかりません。")
         print(f"パス: {config_file_path}")
         return None
 
@@ -29,11 +29,11 @@ def load_config(config_file_path: str):
         print("情報: 設定ファイルの読み込みに成功しました。")
         return config
     except json.JSONDecodeError as e:
-        print(f"エラー: 設定ファイルの書式がJSONとして正しくありません。")
+        print("エラー: 設定ファイルの書式がJSONとして正しくありません。")
         print(f"エラー箇所: {e}")
         return None
     except Exception as e:
-        print(f"エラー: 設定ファイルの読み込み中に予期せぬエラーが発生しました。")
+        print("エラー: 設定ファイルの読み込み中に予期せぬエラーが発生しました。")
         print(f"エラー詳細: {e}")
         return None
 
