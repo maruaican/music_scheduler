@@ -9,6 +9,7 @@ try:
 except ImportError:
     pygame = None
 
+
 def play_mp3_safely(file_path: str) -> (bool, str):
     if not pygame:
         return False, "Pygameライブラリがロードされていません。"
@@ -38,6 +39,7 @@ def play_mp3_safely(file_path: str) -> (bool, str):
         if pygame.mixer.get_init():
             pygame.mixer.quit()
         return False, f"MP3再生中に予期せぬエラーが発生しました: {e}"
+
 
 def run_exe(file_path: str) -> (bool, str):
     """

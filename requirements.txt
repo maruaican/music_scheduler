@@ -1,3 +1,4 @@
-pandas
-schedule
-pygame
+pandas==2.3.0
+schedule==1.2.2
+pygame==2.6.1
+pytest>=6.0.0
