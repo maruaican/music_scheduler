@@ -48,10 +48,7 @@ if __name__ == "__main__":
     config_path = os.path.join(base_path, "config.json")
 
     dummy_config_data = {
-        "schedule_period": {
-            "start_date": "2025-06-16",
-            "end_date": "2025-09-15"
-        },
+        "schedule_period": {"start_date": "2025-06-16", "end_date": "2025-09-15"},
         "holiday_list_path": "holidays.csv",
         "daily_schedules": [
             {
