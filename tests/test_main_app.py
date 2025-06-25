@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 sys.modules['tendo'] = MagicMock()
 sys.modules['pygame'] = MagicMock()
 
-import main_app
+import main_app  # noqa: E402
 
 # --- テストケース ---
 

@@ -1,8 +1,6 @@
 import csv
 from datetime import datetime, timedelta
 import os
-import json # テストコード用にインポート
-import sys  # テストコード用にインポート
 
 def read_holidays(holiday_file_path: str) -> set:
     """
@@ -18,7 +16,8 @@ def read_holidays(holiday_file_path: str) -> set:
         with open(holiday_file_path, 'r', encoding='utf-8', newline='') as f:
             reader = csv.reader(f)
             for row in reader:
-                if row: holidays.add(row[0].strip())
+                if row:
+                    holidays.add(row[0].strip())
         # logging.info("休日リストをUTF-8で読み込みました。")
         return holidays
     except UnicodeDecodeError:
@@ -27,13 +26,14 @@ def read_holidays(holiday_file_path: str) -> set:
             with open(holiday_file_path, 'r', encoding='shift_jis', newline='') as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    if row: holidays.add(row[0].strip())
+                    if row:
+                        holidays.add(row[0].strip())
             # logging.info("休日リストをShift_JISで読み込みました。")
             return holidays
-        except Exception as e:
+        except Exception:
             # logging.error(f"Shift_JISでの休日リスト読み込みに失敗しました。: {e}")
             return set()
-    except Exception as e:
+    except Exception:
         # logging.error(f"休日リストの読み込み中に予期せぬエラーが発生しました。: {e}")
         return set()
 

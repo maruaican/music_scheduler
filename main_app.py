@@ -1,6 +1,5 @@
 # main_app.py
 
-import argparse
 import logging
 import os
 import sys
@@ -18,11 +17,13 @@ except ImportError:
 
 
 # --- 外部ライブラリ ---
-try:
-    import pygame
-except ImportError as e:
-    print(f"エラー: 必要なライブラリが見つかりません: {e.name}")
-    sys.exit(1)
+# pygameはGUI版で利用する可能性があるため、ここではtry-exceptを残しますが、
+# CUI版では使用しないため、import文はコメントアウトします。
+# try:
+#     import pygame
+# except ImportError as e:
+#     print(f"エラー: 必要なライブラリが見つかりません: {e.name}")
+#     sys.exit(1)
 
 # --- 自作モジュール（task_executorは新しいものをインポート） ---
 try:
@@ -39,7 +40,8 @@ status_lock = threading.Lock()
 
 def setup_logging(base_path: str):
     log_file_path = os.path.join(base_path, 'app.log')
-    with status_lock: APP_STATUS["log_file_path"] = log_file_path
+    with status_lock:
+        APP_STATUS["log_file_path"] = log_file_path
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S', handlers=[logging.FileHandler(log_file_path, encoding='utf-8'), logging.StreamHandler(sys.stdout)])
 # --- スケジューラループ ---
 def scheduler_loop(config, base_path):
@@ -109,7 +111,8 @@ def scheduler_loop(config, base_path):
                 last_checked_date = current_date
 
             if not tasks_for_today:
-                with status_lock: APP_STATUS["status"] = "本日のスケジュール完了、待機中"
+                with status_lock:
+                    APP_STATUS["status"] = "本日のスケジュール完了、待機中"
                 # 待機中のログは一度だけ出力し、その後は日付が変わるまで出力しない
                 if last_checked_date != current_date: # 日付が変わった場合のみログを出力
                     logging.info("========================================")
@@ -157,7 +160,8 @@ def scheduler_loop(config, base_path):
                 continue
 
             # --- 実行時刻に到達 ---
-            with status_lock: APP_STATUS["status"] = f"実行中: {next_task['task_type']}"
+            with status_lock:
+                APP_STATUS["status"] = f"実行中: {next_task['task_type']}"
             logging.info(f"実行時刻です。タスクを実行 -> [{next_task['task_type']}] {next_task['task_path']}")
             
             executed_task = tasks_for_today.pop(0) # 実行したタスクをリストから削除
@@ -169,7 +173,8 @@ def scheduler_loop(config, base_path):
                 success, message = run_exe(executed_task['task_path'])
             
             logging.info(f"タスク実行結果: {message}")
-            if not success: logging.error(f"タスク実行でエラーが発生しました。")
+            if not success:
+                logging.error("タスク実行でエラーが発生しました。")
 
             # --- 実行後処理 ---
             with status_lock:
@@ -185,14 +190,15 @@ def scheduler_loop(config, base_path):
         
         except Exception as e:
             logging.critical(f"ループで致命的エラー: {e}", exc_info=True)
-            with status_lock: APP_STATUS["status"] = "エラー発生"
+            with status_lock:
+                APP_STATUS["status"] = "エラー発生"
             time.sleep(5)
 
 # --- メイン実行ブロック ---
 def main():
     # ★★★ この一行で、アプリケーションのインスタンスが一つであることを保証する ★★★
     # もし既に起動している場合、ここでプログラムは例外を発生させて終了する。
-    me = singleton.SingleInstance()
+    singleton.SingleInstance()
 
     base_path = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(__file__)
     setup_logging(base_path)
@@ -230,8 +236,10 @@ def main():
     scheduler_thread.start()
 
     try:
-        while scheduler_thread.is_alive(): scheduler_thread.join(timeout=1.0)
-    except KeyboardInterrupt: logging.info("アプリケーションを終了します。")
+        while scheduler_thread.is_alive():
+            scheduler_thread.join(timeout=1.0)
+    except KeyboardInterrupt:
+        logging.info("アプリケーションを終了します。")
 
 if __name__ == '__main__':
     main()
