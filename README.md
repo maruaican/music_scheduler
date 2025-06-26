@@ -156,12 +156,12 @@ music-scheduler/
 ├── config_loader.py         # 設定ファイル読み込み
 ├── schedule_calculator.py   # スケジュール計算
 ├── task_executor.py         # タスク実行
-├── config.json             # 設定ファイル
-├── holidays.csv            # 休日リスト
-├── ikuju.mp3              # 「緑のたましい」音源ファイル
-├── app.log                # ログファイル（実行時に生成）
-├── LICENSE                # MITライセンス
-└── README.md              # このファイル
+├── config.json              # 設定ファイル
+├── holidays.csv             # 休日リスト
+├── ikuju.mp3                # 「緑のたましい」音源ファイル
+├── app.log                  # ログファイル（実行時に生成）
+├── LICENSE                  # MITライセンス
+└── README.md                # このファイル
 ```
 
 ## 同梱音源について
