@@ -178,10 +178,15 @@ music-scheduler/
 ## 注意事項
 
 １. **二重起動防止**: アプリケーションは同時に１つしか起動できません
+
 ２. **ファイルパス**: MP3ファイルやEXEファイルのパスは、相対パス（アプリケーションフォルダからの相対）または絶対パスで指定できます
+
 ３. **文字コード**: 休日リストCSVファイルはUTF-８またはShift_JISに対応しています
+
 ４. **音楽再生**: MP3再生中はアプリケーションが待機し、再生完了後に次の処理に進みます
+
 ５. **エラー処理**: タスク実行に失敗してもアプリケーションは継続して動作します
+
 ６. **長期運用**: 熱暴走を防ぐため、モニタースリープの設定を推奨します
 
 ## トラブルシューティング
@@ -214,7 +219,7 @@ A: システムの電源設定を確認し、モニタースリープが有効�
 ```
 MIT License
 
-Copyright (c) [年] [著作者名]
+Copyright (c) 2025 maruaican
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
