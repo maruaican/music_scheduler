@@ -190,10 +190,18 @@ def scheduler_loop(config, base_path):
             executed_task = tasks_for_today.pop(0)  # 実行したタスクをリストから削除
 
             success, message = False, ""
+            # タスクパスが絶対パスでない場合、base_pathと結合してフルパスを生成
+            # config.jsonに相対パスで記述されたファイルに対応するため
+            resolved_task_path = (
+                os.path.join(base_path, executed_task["task_path"])
+                if not os.path.isabs(executed_task["task_path"])
+                else executed_task["task_path"]
+            )
+
             if executed_task["task_type"] == "play_mp3":
-                success, message = play_mp3_safely(executed_task["task_path"])
+                success, message = play_mp3_safely(resolved_task_path)
             elif executed_task["task_type"] == "run_exe":
-                success, message = run_exe(executed_task["task_path"])
+                success, message = run_exe(resolved_task_path)
 
             logging.info(f"タスク実行結果: {message}")
             if not success:
